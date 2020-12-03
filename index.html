@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .container {
+                display: flex;
+                flex-flow: row nowrap;
+            }
+            .form {
+                display: flex;
+                flex-flow: column;
+                flex: 1 0 200px;
+                margin: 15px;
+                padding: 0 20px;
+            }
+            .form .error {
+                color: red;
+            }
+
+            .form .input {
+                display: flex;
+                flex-flow: row nowrap;
+                margin: 5px;
+            }
+
+            .form .input label {
+                flex: 1 0 0;
+            }
+
+            .form .input input {
+                flex: 3 0 0;
+            }
+
+            .table {
+                flex: 2 0 200px;
+                margin: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <form class="form">
+                <div class="input">
+                    <label for="iterations">Iterations:</label>
+                    <input type="number" id="iterations" name="iterations">
+                </div>
+
+                <div class="input">
+                    <label for="probA">Probability A:</label>
+                    <input type="number" step=".01" id="probA" name="probA">
+                </div>
+
+                <div class="input">
+                    <label for="probB">Probability B:</label>
+                    <input type="number" step=".01" id="probB" name="probB">
+                </div>
+
+                <button type="button" onclick="calculateValues()">
+                    Calculate!
+                </button>
+                <span id="error" class="error"></span>
+            </form>
+            <div class="table">
+                <table id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>Successes</th>
+                            <th>Proportion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function calculateValues(a) {
+                const iterations = +document.getElementById('iterations').value;
+                const probA = +document.getElementById('probA').value;
+                const probB = +document.getElementById('probB').value;
+
+                if (probA + probB !== 1) {
+                    document.getElementById('error').innerHTML = 'probabilities must add up to 1';
+                    return;
+                }
+
+                if (!iterations) {
+                    document.getElementById('error').innerHTML = 'you have to add a positive value for iterations';
+                    return;
+                }
+
+                document.getElementById('error').innerHTML = '';
+
+                const coeficients = pascalRuleCoeficients(iterations);
+                const table = document.getElementById('resultTable')
+
+                for (let index in coeficients) {
+                    const successfulCycles = iterations - index;
+                    const probValue = (Math.pow(probA, (iterations - index)) * Math.pow(probB, (iterations - (iterations - index)))) * coeficients[index];
+
+                    const row = table.insertRow(1);
+                    const cellCycles = row.insertCell(0);
+                    const cellProb = row.insertCell(1);
+
+                    cellCycles.innerHTML = successfulCycles;
+                    cellProb.innerHTML = `${(probValue * 100).toFixed(2)}% -- (prob: ${probValue})`;
+                }
+            }
+
+            function pascalRuleCoeficients(iterations = 0) {
+                if (!iterations) return;
+
+                const distributionOfSuccesses = {};
+
+                for (let i = 0; i <= iterations; i++) {
+                    distributionOfSuccesses[(iterations - i)] = coeficientPerPosition(iterations, i);
+                }
+
+                return distributionOfSuccesses;
+            }
+
+            function coeficientPerPosition(n, k) {
+                return factorial(n) / (factorial(k) * factorial(n - k));
+            }
+
+            function factorial(n) {
+                if (!n) return 1;
+
+                let ans = 1;
+                for (let i = n; i > 0; i--) {
+                    ans = ans * i;
+                }
+                return ans;
+            }
+        </script>
+    </body>
+</html>
