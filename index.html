@@ -95,11 +95,13 @@
                 const coeficients = pascalRuleCoeficients(iterations);
                 const table = document.getElementById('resultTable')
 
+                table.replaceChild(document.createElement('tbody'), table.children[1]);
+
                 for (let index in coeficients) {
                     const successfulCycles = iterations - index;
                     const probValue = (Math.pow(probA, (iterations - index)) * Math.pow(probB, (iterations - (iterations - index)))) * coeficients[index];
 
-                    const row = table.insertRow(1);
+                    const row = table.children[1].insertRow(0);
                     const cellCycles = row.insertCell(0);
                     const cellProb = row.insertCell(1);
 
