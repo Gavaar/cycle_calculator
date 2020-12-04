@@ -2,6 +2,24 @@
 <html>
     <head>
         <style>
+            /* SCROLLBARS */
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: whitesmoke gray;
+            }
+            *::-webkit-scrollbar {
+                width: 12px;
+            }
+            *::-webkit-scrollbar-track {
+                background: darkgrey;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: whitesmoke;
+                border-radius: 20px;
+                border: 3px solid gray;
+            }
+
+            /* PRESENTATION */
             .container {
                 display: flex;
                 flex-flow: row nowrap;
@@ -34,12 +52,30 @@
             .table {
                 flex: 2 0 200px;
                 margin: 15px;
+                border-spacing: unset;
+                max-height: 90vh;
+                overflow: overlay;
+            }
+
+            .table table {
+                width: 100%;
+                border-spacing: unset;
+            }
+
+            .table tr:hover {
+                background-color: grey;
+                color: white;
+                cursor: pointer;
+            }
+
+            .table .odd {
+                background-color: whitesmoke;
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <form class="form">
+            <form class="form" onkeyup="tryToSubmit(event)">
                 <div class="input">
                     <label for="iterations">Iterations:</label>
                     <input type="number" id="iterations" name="iterations">
@@ -66,6 +102,7 @@
                         <tr>
                             <th>Successes</th>
                             <th>Proportion</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,7 +112,7 @@
         </div>
 
         <script type="text/javascript">
-            function calculateValues(a) {
+            function calculateValues() {
                 const iterations = +document.getElementById('iterations').value;
                 const probA = +document.getElementById('probA').value;
                 const probB = +document.getElementById('probB').value;
@@ -102,11 +139,15 @@
                     const probValue = (Math.pow(probA, (iterations - index)) * Math.pow(probB, (iterations - (iterations - index)))) * coeficients[index];
 
                     const row = table.children[1].insertRow(0);
+                    if (index % 2) row.setAttribute('class', 'odd');
                     const cellCycles = row.insertCell(0);
                     const cellProb = row.insertCell(1);
+                    const visual = row.insertCell(2);
 
                     cellCycles.innerHTML = successfulCycles;
                     cellProb.innerHTML = `${(probValue * 100).toFixed(2)}% -- (prob: ${probValue})`;
+
+                    visual.innerHTML = Array.from(new Array(Math.floor(probValue * 400)), function(v) { return '|'; }).join('');
                 }
             }
 
@@ -134,6 +175,10 @@
                     ans = ans * i;
                 }
                 return ans;
+            }
+
+            function tryToSubmit({ key }) {
+                if (key === 'Enter') calculateValues();
             }
         </script>
     </body>
